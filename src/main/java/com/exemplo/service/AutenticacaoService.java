@@ -4,6 +4,8 @@ import com.exemplo.dto.AutenticacaoRequest;
 import com.exemplo.dto.AutenticacaoResponse;
 import com.exemplo.dto.IdentificadorRequest;
 import com.exemplo.dto.IdentificadorResponse;
+import com.exemplo.dto.OAuthTokenRequest;
+import com.exemplo.dto.OAuthTokenResponse;
 import com.exemplo.dto.ValidacaoResponse;
 import com.exemplo.dto.ValidacaoTokenSessionRequest;
 import com.exemplo.dto.ValidacaoTokenSessionResponse;
@@ -26,6 +28,7 @@ public class AutenticacaoService {
     private final AutenticacaoTransacaoRepository autenticacaoTransacaoRepository;
     private final RegistroRepository registroRepository;
     private final JwtService jwtService;
+    private final OAuthService oauthService;
     
     private static final SecureRandom random = new SecureRandom();
     
@@ -142,5 +145,45 @@ public class AutenticacaoService {
         // Buscar no banco de dados pelo identificador gerado
         return registroRepository.findByIdentificador(registroTemp.getIdentificador())
                 .map(registro -> new IdentificadorResponse(registro.getEmail(), registro.getTelefone()));
+    }
+    
+    /**
+     * 🔐 Gera token OAuth 2.0 para autenticação
+     * 
+     * @param request Dados da requisição de autenticação
+     * @return Resposta com token OAuth
+     */
+    public OAuthTokenResponse gerarTokenOAuth(AutenticacaoRequest request) {
+        // Criar requisição OAuth
+        OAuthTokenRequest oauthRequest = new OAuthTokenRequest();
+        oauthRequest.setGrantType("password");
+        oauthRequest.setClientId("api-auth-pless-client");
+        oauthRequest.setClientSecret("secret");
+        oauthRequest.setUsername(request.getCpf());
+        oauthRequest.setPassword("password"); // Senha temporária
+        oauthRequest.setScope("read write");
+        
+        // Gerar token via OAuth Service
+        return oauthService.generateToken(oauthRequest);
+    }
+    
+    /**
+     * ✅ Valida token OAuth 2.0
+     * 
+     * @param token Token a ser validado
+     * @return true se válido
+     */
+    public boolean validarTokenOAuth(String token) {
+        return oauthService.validateToken(token);
+    }
+    
+    /**
+     * 🔄 Renova token OAuth 2.0
+     * 
+     * @param refreshToken Token de renovação
+     * @return Novo token
+     */
+    public OAuthTokenResponse renovarTokenOAuth(String refreshToken) {
+        return oauthService.refreshToken(refreshToken);
     }
 }

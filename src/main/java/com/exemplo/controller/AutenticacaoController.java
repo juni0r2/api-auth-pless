@@ -3,7 +3,7 @@ package com.exemplo.controller;
 import com.exemplo.dto.AutenticacaoRequest;
 import com.exemplo.dto.AutenticacaoResponse;
 import com.exemplo.dto.IdentificadorRequest;
-import com.exemplo.dto.IdentificadorResponse;
+import com.exemplo.dto.OAuthTokenResponse;
 import com.exemplo.dto.ValidacaoRequest;
 import com.exemplo.dto.ValidacaoResponse;
 import com.exemplo.dto.ValidacaoTokenSessionRequest;
@@ -18,7 +18,6 @@ import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
 
 
 @RestController
@@ -61,6 +60,33 @@ public class AutenticacaoController {
     @PostMapping("/valida-token-session")
     public ResponseEntity<ValidacaoTokenSessionResponse> validarTokenSession(@Valid @RequestBody ValidacaoTokenSessionRequest request) {
         ValidacaoTokenSessionResponse response = autenticacaoService.validarTokenSession(request);
+        return ResponseEntity.ok(response);
+    }
+    
+    /**
+     * 🔐 Endpoint para gerar token OAuth 2.0
+     */
+    @PostMapping("/oauth/token")
+    public ResponseEntity<OAuthTokenResponse> gerarTokenOAuth(@Valid @RequestBody AutenticacaoRequest request) {
+        OAuthTokenResponse response = autenticacaoService.gerarTokenOAuth(request);
+        return ResponseEntity.ok(response);
+    }
+    
+    /**
+     * ✅ Endpoint para validar token OAuth 2.0
+     */
+    @GetMapping("/oauth/validate")
+    public ResponseEntity<Boolean> validarTokenOAuth(@RequestParam String token) {
+        boolean isValid = autenticacaoService.validarTokenOAuth(token);
+        return ResponseEntity.ok(isValid);
+    }
+    
+    /**
+     * 🔄 Endpoint para renovar token OAuth 2.0
+     */
+    @PostMapping("/oauth/refresh")
+    public ResponseEntity<OAuthTokenResponse> renovarTokenOAuth(@RequestParam String refreshToken) {
+        OAuthTokenResponse response = autenticacaoService.renovarTokenOAuth(refreshToken);
         return ResponseEntity.ok(response);
     }
     
