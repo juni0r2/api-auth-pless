@@ -1,4 +1,4 @@
-# 🐳 Dockerfile para Demo Application
+# 🐳 Dockerfile para API Auth Pless
 
 # Multi-stage build para otimização
 FROM maven:3.9.6-openjdk-21-slim AS builder
@@ -23,7 +23,7 @@ RUN groupadd -r appuser && useradd -r -g appuser appuser
 WORKDIR /app
 
 # 📦 Copiar JAR da aplicação
-COPY --from=builder /app/target/demo-*.jar app.jar
+COPY --from=builder /app/target/api-auth-pless-*.jar app.jar
 
 # 👤 Mudar para usuário não-root
 USER appuser
@@ -41,9 +41,9 @@ ENTRYPOINT ["java", "-jar", "app.jar"]
 # 📝 Labels para metadados
 LABEL maintainer="seu-email@exemplo.com"
 LABEL version="1.0.0"
-LABEL description="Sistema de Registro de Usuários"
-LABEL org.opencontainers.image.title="Demo Application"
-LABEL org.opencontainers.image.description="Sistema REST API para gerenciamento de registros"
+LABEL description="API de Autenticação Passwordless"
+LABEL org.opencontainers.image.title="API Auth Pless"
+LABEL org.opencontainers.image.description="Sistema REST API para autenticação sem senha"
 LABEL org.opencontainers.image.version="1.0.0"
 LABEL org.opencontainers.image.authors="Seu Nome <seu-email@exemplo.com>"
 

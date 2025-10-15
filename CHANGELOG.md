@@ -1,4 +1,4 @@
-# 📝 Changelog
+# 📝 Changelog - API Auth Pless
 
 Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 

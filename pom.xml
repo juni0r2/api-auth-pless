@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.exemplo</groupId>
-    <artifactId>demo</artifactId>
+    <artifactId>api-auth-pless</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>demo</name>
-    <description>Demo project for Spring Boot</description>
+    <name>api-auth-pless</name>
+    <description>API de Autenticação Passwordless - Sistema de autenticação sem senha com tokens</description>
     
     <properties>
         <java.version>21</java.version>

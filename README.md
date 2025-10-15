@@ -1,6 +1,6 @@
-# 📋 Sistema de Registro de Usuários
+# 🔐 API Auth Pless - Sistema de Autenticação Passwordless
 
-Sistema REST API desenvolvido em Spring Boot para gerenciamento de registros de usuários com funcionalidades de validação de CPF, mascaramento de dados sensíveis e tratamento de erros padronizado.
+API REST desenvolvida em Spring Boot para autenticação sem senha (passwordless) com tokens de 6 dígitos, validação de CPF, mascaramento de dados sensíveis e geração de JWT para sessões.
 
 ## 🚀 Tecnologias Utilizadas
 

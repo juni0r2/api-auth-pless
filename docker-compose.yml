@@ -1,12 +1,12 @@
-# 🐳 Docker Compose para Demo Application
+# 🐳 Docker Compose para API Auth Pless
 
 version: '3.8'
 
 services:
   # 🚀 Aplicação Principal
-  demo-app:
+  api-auth-pless:
     build: .
-    container_name: demo-app
+    container_name: api-auth-pless
     ports:
       - "8080:8080"
     environment:
@@ -18,7 +18,7 @@ services:
       - ./data:/app/data
       - ./logs:/app/logs
     networks:
-      - demo-network
+      - api-auth-pless-network
     depends_on:
       - h2-db
     restart: unless-stopped
@@ -32,7 +32,7 @@ services:
   # 🗄️ Banco de Dados H2
   h2-db:
     image: oscarfonts/h2:latest
-    container_name: demo-h2-db
+    container_name: api-auth-pless-h2-db
     ports:
       - "8081:8081"
     environment:
@@ -40,19 +40,19 @@ services:
     volumes:
       - h2-data:/opt/h2-data
     networks:
-      - demo-network
+      - api-auth-pless-network
     restart: unless-stopped
 
   # 📊 Prometheus (Monitoramento)
   prometheus:
     image: prom/prometheus:latest
-    container_name: demo-prometheus
+    container_name: api-auth-pless-prometheus
     ports:
       - "9090:9090"
     volumes:
       - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
     networks:
-      - demo-network
+      - api-auth-pless-network
     restart: unless-stopped
     profiles:
       - monitoring
@@ -60,7 +60,7 @@ services:
   # 📈 Grafana (Dashboards)
   grafana:
     image: grafana/grafana:latest
-    container_name: demo-grafana
+    container_name: api-auth-pless-grafana
     ports:
       - "3000:3000"
     environment:
@@ -68,7 +68,7 @@ services:
     volumes:
       - grafana-data:/var/lib/grafana
     networks:
-      - demo-network
+      - api-auth-pless-network
     restart: unless-stopped
     profiles:
       - monitoring
@@ -76,7 +76,7 @@ services:
   # 📝 ELK Stack (Logs)
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
-    container_name: demo-elasticsearch
+    container_name: api-auth-pless-elasticsearch
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=false
@@ -85,20 +85,20 @@ services:
     volumes:
       - elasticsearch-data:/usr/share/elasticsearch/data
     networks:
-      - demo-network
+      - api-auth-pless-network
     restart: unless-stopped
     profiles:
       - logging
 
   kibana:
     image: docker.elastic.co/kibana/kibana:8.11.0
-    container_name: demo-kibana
+    container_name: api-auth-pless-kibana
     ports:
       - "5601:5601"
     environment:
       - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
     networks:
-      - demo-network
+      - api-auth-pless-network
     depends_on:
       - elasticsearch
     restart: unless-stopped
@@ -107,11 +107,11 @@ services:
 
   logstash:
     image: docker.elastic.co/logstash/logstash:8.11.0
-    container_name: demo-logstash
+    container_name: api-auth-pless-logstash
     volumes:
       - ./monitoring/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
     networks:
-      - demo-network
+      - api-auth-pless-network
     depends_on:
       - elasticsearch
     restart: unless-stopped
@@ -120,9 +120,9 @@ services:
 
 # 🌐 Redes
 networks:
-  demo-network:
+  api-auth-pless-network:
     driver: bridge
-    name: demo-network
+    name: api-auth-pless-network
 
 # 💾 Volumes
 volumes:
