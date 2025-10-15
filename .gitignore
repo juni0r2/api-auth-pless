@@ -1,0 +1,55 @@
+# 🚫 Git Ignore para Demo Application
+
+# 📁 Diretórios de build
+target/
+build/
+out/
+
+# 💾 Banco de dados H2
+data/
+*.db
+*.mv.db
+*.trace.db
+
+# 📝 Logs
+logs/
+*.log
+
+# 🗂️ Arquivos temporários
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# 🖥️ Sistema operacional
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 🔧 IDEs
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.project
+.classpath
+.settings/
+
+# 🐳 Docker
+.dockerignore
+
+# 📊 Relatórios
+jacoco.exec
+site/
+
+# 🔐 Secrets
+application-local.properties
+application-secret.properties
+*.key
+*.pem
+
+# 📦 Dependências
+node_modules/
+

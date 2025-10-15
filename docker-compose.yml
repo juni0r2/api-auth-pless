@@ -1,0 +1,140 @@
+# 🐳 Docker Compose para Demo Application
+
+version: '3.8'
+
+services:
+  # 🚀 Aplicação Principal
+  demo-app:
+    build: .
+    container_name: demo-app
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:h2:file:/app/data/registrodb
+      - SPRING_DATASOURCE_USERNAME=SA
+      - SPRING_DATASOURCE_PASSWORD=
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    networks:
+      - demo-network
+    depends_on:
+      - h2-db
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # 🗄️ Banco de Dados H2
+  h2-db:
+    image: oscarfonts/h2:latest
+    container_name: demo-h2-db
+    ports:
+      - "8081:8081"
+    environment:
+      - H2_OPTIONS=-web -webAllowOthers -webPort 8081
+    volumes:
+      - h2-data:/opt/h2-data
+    networks:
+      - demo-network
+    restart: unless-stopped
+
+  # 📊 Prometheus (Monitoramento)
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: demo-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - demo-network
+    restart: unless-stopped
+    profiles:
+      - monitoring
+
+  # 📈 Grafana (Dashboards)
+  grafana:
+    image: grafana/grafana:latest
+    container_name: demo-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana-data:/var/lib/grafana
+    networks:
+      - demo-network
+    restart: unless-stopped
+    profiles:
+      - monitoring
+
+  # 📝 ELK Stack (Logs)
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    container_name: demo-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+    ports:
+      - "9200:9200"
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    networks:
+      - demo-network
+    restart: unless-stopped
+    profiles:
+      - logging
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.11.0
+    container_name: demo-kibana
+    ports:
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    networks:
+      - demo-network
+    depends_on:
+      - elasticsearch
+    restart: unless-stopped
+    profiles:
+      - logging
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.11.0
+    container_name: demo-logstash
+    volumes:
+      - ./monitoring/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+    networks:
+      - demo-network
+    depends_on:
+      - elasticsearch
+    restart: unless-stopped
+    profiles:
+      - logging
+
+# 🌐 Redes
+networks:
+  demo-network:
+    driver: bridge
+    name: demo-network
+
+# 💾 Volumes
+volumes:
+  h2-data:
+    driver: local
+  elasticsearch-data:
+    driver: local
+  grafana-data:
+    driver: local
+
+# 📝 Profiles
+# Uso: docker-compose --profile monitoring up
+# Uso: docker-compose --profile logging up
+# Uso: docker-compose up (apenas app + h2)
+
