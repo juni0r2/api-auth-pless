@@ -148,22 +148,54 @@ public class AutenticacaoService {
     }
     
     /**
-     * 🔐 Gera token OAuth 2.0 para autenticação
+     * 🔐 Gera token OAuth 2.0 para autenticação passwordless
      * 
      * @param request Dados da requisição de autenticação
      * @return Resposta com token OAuth
      */
     public OAuthTokenResponse gerarTokenOAuth(AutenticacaoRequest request) {
-        // Criar requisição OAuth
+        // Para passwordless, primeiro geramos o token de 6 dígitos
+        AutenticacaoResponse authResponse = gerarToken(request);
+        
+        // Depois geramos o token OAuth usando client_credentials
         OAuthTokenRequest oauthRequest = new OAuthTokenRequest();
-        oauthRequest.setGrantType("password");
+        oauthRequest.setGrantType("client_credentials");
         oauthRequest.setClientId("api-auth-pless-client");
         oauthRequest.setClientSecret("secret");
-        oauthRequest.setUsername(request.getCpf());
-        oauthRequest.setPassword("password"); // Senha temporária
         oauthRequest.setScope("read write");
         
         // Gerar token via OAuth Service
+        return oauthService.generateToken(oauthRequest);
+    }
+    
+    /**
+     * 🔐 Gera token OAuth 2.0 usando token de 6 dígitos validado
+     * 
+     * @param cpf CPF do usuário
+     * @param vertical Vertical do usuário
+     * @param jornada Jornada do usuário
+     * @param token Token de 6 dígitos
+     * @return Resposta com token OAuth
+     */
+    public OAuthTokenResponse gerarTokenPasswordless(String cpf, String vertical, String jornada, String token) {
+        // Validar o token de 6 dígitos
+        String identificador = cpf + "|" + vertical + "|" + jornada;
+        
+        ValidacaoResponse validacaoResponse = validarToken(identificador, token);
+        if (validacaoResponse == null || !validacaoResponse.getMensagem().contains("válido")) {
+            OAuthTokenResponse errorResponse = new OAuthTokenResponse();
+            errorResponse.setError("invalid_grant");
+            errorResponse.setErrorDescription("Token inválido ou expirado");
+            return errorResponse;
+        }
+        
+        // Gerar token OAuth usando client_credentials
+        OAuthTokenRequest oauthRequest = new OAuthTokenRequest();
+        oauthRequest.setGrantType("client_credentials");
+        oauthRequest.setClientId("api-auth-pless-client");
+        oauthRequest.setClientSecret("secret");
+        oauthRequest.setScope("read write");
+        
         return oauthService.generateToken(oauthRequest);
     }
     

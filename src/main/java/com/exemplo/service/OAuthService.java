@@ -55,6 +55,19 @@ public class OAuthService {
                 case "refresh_token" -> {
                     body.add("refresh_token", request.getRefreshToken());
                 }
+                case "client_credentials" -> {
+                    // Para client_credentials, não precisamos de parâmetros adicionais
+                    // O client_id e client_secret já estão no header Authorization
+                }
+                case "passwordless" -> {
+                    // Para passwordless, adicionar informações do usuário
+                    body.add("username", request.getUsername());
+                    body.add("password", request.getPassword());
+                    // Adicionar parâmetros específicos do passwordless
+                    body.add("cpf", request.getUsername()); // Usar CPF como username
+                    body.add("vertical", "TECNOLOGIA"); // Pode ser extraído do contexto
+                    body.add("jornada", "DESENVOLVIMENTO"); // Pode ser extraído do contexto
+                }
             }
 
             HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(body, headers);
